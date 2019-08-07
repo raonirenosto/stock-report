@@ -15,7 +15,18 @@ if key == nil ||
    key.strip.empty?
   puts "API key was not informed"
   exit
-else
-  puts "cool"
-  puts key
+end
+
+stocks = []
+
+# Get stock code list
+if config["stocks"] != nil
+  stocks = config["stocks"].split(" ")
+end
+
+# Get information for each company
+stocks.each do |stock|
+  # Create class Stock and atts
+  # Call api and retrieve values
+  # Set values on Stock class
 end
