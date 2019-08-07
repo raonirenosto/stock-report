@@ -1,16 +1,21 @@
-# Read file with Alpha Vantage API key
+require 'yaml'
+
+# Read config file
 begin
-  key_file = File.read("key.dat")
+  config =  YAML::load(File.read('config.yml'))
 rescue
-  pp "Could not open key.dat"
+  puts "Could not open config.yml"
 end
 
-# Key should be on key.dat second line
-key = key_file.lines[1]
+# Get Alpha Vantage API key
+key = config["key"].to_s
 
+# Key should be on config.yml
 if key == nil ||
-   key.start_with?("#") ||
    key.strip.empty?
-  pp "API key was not informed"
+  puts "API key was not informed"
   exit
+else
+  puts "cool"
+  puts key
 end
