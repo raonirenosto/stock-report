@@ -1,0 +1,2 @@
+class StockReportError < StandardError
+end
