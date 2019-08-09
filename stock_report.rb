@@ -1,5 +1,6 @@
 require 'json'
 require_relative 'stock_report_error.rb'
+require_relative 'day_trade.rb'
 
 class StockReport
 
@@ -73,6 +74,23 @@ class StockReport
     api_key = "apikey=#{@key}"
 
     api_url = "#{api_root}?#{api_function}&#{stock_symbol}&#{api_key}"
+  end
+
+  def extract_information_from_json json, dates
+    section = json["Time Series (Daily)"]
+
+    daily_trade = []
+    dates.each do |date|
+      date_section = section[date.strftime("%Y-%m-%d")]
+      day_trade = DayTrade.new
+      day_trade.date = date
+      day_trade.open_price = date_section["1. open"].to_f
+      day_trade.higher_price = date_section["2. high"].to_f
+      day_trade.lower_price = date_section["3. low"].to_f
+      day_trade.close_price = date_section["4. close"].to_f
+      daily_trade << day_trade
+    end
+    return daily_trade
   end
 
   def read_stocks

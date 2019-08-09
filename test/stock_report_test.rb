@@ -68,4 +68,21 @@ class StockReportTest < Minitest::Spec
 
     assert_equal correct_url, url_to_assert
   end
+
+  def test_extract_information_from_json
+    json_data = JSON.parse(File.read('api_return.json'))
+    dates = @report.last_5_working_days Date.new(2019,8,9)
+
+    daily_trade = @report.extract_information_from_json(json_data,dates)
+
+    day_trade1 = daily_trade[0]
+
+    assert_equal 26.30, day_trade1.open_price
+    assert_equal 26.29, day_trade1.close_price
+    assert_equal 26.69, day_trade1.higher_price
+    assert_equal 26.10, day_trade1.lower_price
+    assert_equal Date.new(2019,8,9), day_trade1.date
+
+    assert_equal 5, daily_trade.size
+  end
 end
