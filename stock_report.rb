@@ -66,6 +66,15 @@ class StockReport
     return last_working_days
   end
 
+  def generate_api_url stock_symbol
+    api_root = "https://www.alphavantage.co/query"
+    api_function = "function=TIME_SERIES_DAILY_ADJUSTED"
+    stock_symbol = "symbol=#{stock_symbol}.SAO" #São Paulo Market
+    api_key = "apikey=#{@key}"
+
+    api_url = "#{api_root}?#{api_function}&#{stock_symbol}&#{api_key}"
+  end
+
   def read_stocks
 
     # Get information for each company

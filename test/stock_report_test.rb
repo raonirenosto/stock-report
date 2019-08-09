@@ -57,4 +57,15 @@ class StockReportTest < Minitest::Spec
     assert_equal Date.new(2019,7,30), last_5_working_days[3]
     assert_equal Date.new(2019,7,29), last_5_working_days[4]
   end
+
+  def test_generate_api_url
+    correct_url = "https://www.alphavantage.co/query?" +
+      "function=TIME_SERIES_DAILY_ADJUSTED" +
+      "&symbol=PETR4.SAO&apikey=123"
+
+    @report.parse_fields '{"key":"123","stocks":["PETR4"]}'
+    url_to_assert = @report.generate_api_url "PETR4"
+
+    assert_equal correct_url, url_to_assert
+  end
 end
