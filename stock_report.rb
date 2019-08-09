@@ -38,7 +38,6 @@ class StockReport
     begin
       json = JSON.parse(raw_text)
     rescue => e
-      puts e.message
       raise StockReportError, MESSAGE_INVALID_JSON
     end
 
@@ -53,6 +52,18 @@ class StockReport
     if @stocks.empty?
       raise StockReportError, MESSAGE_STOCK_NOT_INFORMED
     end
+  end
+
+  def last_5_working_days date
+    last_working_days = []
+    while last_working_days.size < 5
+      # Add dates only if is not Sunday or Satarday
+      if date.wday > 0 && date.wday < 6
+        last_working_days << date
+      end
+      date = date.prev_day
+    end
+    return last_working_days
   end
 
   def read_stocks

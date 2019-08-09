@@ -3,48 +3,58 @@ require 'mocha/minitest'
 require_relative '../stock_report.rb'
 
 class StockReportTest < Minitest::Spec
+  attr_accessor :report
+
+  def setup
+    @report = StockReport.new
+  end
 
   def test_read_config_file_not_found
-    stock = StockReport.new
-
     begin
-      stock.read_config "not_a_valid_name"
+      @report.read_config "not_a_valid_name"
     rescue => e
       assert_equal "Could not open config.json", e.message
     end
   end
 
   def test_parse_fields_invalid_json
-    stock = StockReport.new
-
     begin
-      stock.parse_fields "not_a_valid_json"
+      @report.parse_fields 'not_a_valid_json'
     rescue => e
       assert_equal "Invalid JSON syntax on config.json", e.message
     end
   end
 
   def test_parse_fields_key_not_informed
-    stock = StockReport.new
-
     begin
-      stock.parse_fields '{"key": ""}'
+      @report.parse_fields '{"key": ""}'
     rescue => e
       assert_equal "API key was not informed. Set 'key' on config.json file", e.message
     end
   end
 
-  def test_parse_fields_api_key
-    stock = StockReport.new
+  def test_parse_fields_success
+    @report.parse_fields '{"key":"123","stocks":["PETR4"]}'
 
-    stock.parse_fields '{"key":"123","stocks":["PETR4"]}'
-
-    assert_equal("123", stock.key)
+    assert_equal "123", @report.key
+    assert_equal 1, @report.stocks.size
   end
 
-  def test_parse_fields_stocks
-    stock = StockReport.new
-    stock.parse_fields '{"key":"123","stocks":["PETR4"]}'
-    assert_equal 1, stock.stocks.size
+  def test_last_5_working_days_on_week_day
+    last_5_working_days = @report.last_5_working_days Date.new(2019,8,5) #monday
+    assert_equal Date.new(2019,8,5), last_5_working_days[0]
+    assert_equal Date.new(2019,8,2), last_5_working_days[1]
+    assert_equal Date.new(2019,8,1), last_5_working_days[2]
+    assert_equal Date.new(2019,7,31), last_5_working_days[3]
+    assert_equal Date.new(2019,7,30), last_5_working_days[4]
+  end
+
+  def test_last_5_working_days_not_on_week_day
+    last_5_working_days = @report.last_5_working_days Date.new(2019,8,4) #sunday
+    assert_equal Date.new(2019,8,2), last_5_working_days[0]
+    assert_equal Date.new(2019,8,1), last_5_working_days[1]
+    assert_equal Date.new(2019,7,31), last_5_working_days[2]
+    assert_equal Date.new(2019,7,30), last_5_working_days[3]
+    assert_equal Date.new(2019,7,29), last_5_working_days[4]
   end
 end
