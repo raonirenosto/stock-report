@@ -85,4 +85,30 @@ class StockReportTest < Minitest::Spec
 
     assert_equal 5, daily_trade.size
   end
+
+  def test_call_to_api_result_not_200
+    begin
+      connection = stub()
+      response = stub()
+      response.stubs(:code).returns(404)
+      connection.stubs(:get_response).returns(response)
+      @report.call_api "any_url", connection
+    rescue => e
+      assert_equal "An error has occured while acessing API", e.message
+    end
+  end
+
+  def test_call_to_api_result_api_error
+    begin
+      connection = stub()
+      response = stub()
+      response.stubs(:code).returns(200)
+      response.stubs(:body).returns('{"Error Message": "Invalid API"}')
+      connection.stubs(:get_response).returns(response)
+      @report.call_api "any_url", connection
+    rescue => e
+      assert_equal "An error has occured while acessing API", e.message
+    end
+  end
+
 end

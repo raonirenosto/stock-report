@@ -1,4 +1,5 @@
 require 'json'
+require 'net/http'
 require_relative 'stock_report_error.rb'
 require_relative 'day_trade.rb'
 
@@ -14,6 +15,7 @@ class StockReport
   MESSAGE_INVALID_JSON = "Invalid JSON syntax on config.json"
   MESSAGE_KEY_NOT_INFORMED = "API key was not informed. Set 'key' on config.json file"
   MESSAGE_STOCK_NOT_INFORMED = "You should inform at least one stock on config.json file"
+  MESSAGE_API_CALL_ERROR = "An error has occured while acessing API"
 
   def generate_report
     begin
@@ -91,6 +93,24 @@ class StockReport
       daily_trade << day_trade
     end
     return daily_trade
+  end
+
+  def call_api url, connection
+    uri = URI(url)
+
+    response = connection.get_response(uri)
+
+    if response.code != 200
+      raise StockReportError, MESSAGE_API_CALL_ERROR
+    end
+
+    # Check for errors returned by the API
+    json = JSON.parse(response.body)
+
+    if json["Error Message"] != nil
+      raise StockReportError, MESSAGE_API_CALL_ERROR
+    end
+    return json
   end
 
   def read_stocks
