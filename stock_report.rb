@@ -1,5 +1,6 @@
 require 'json'
 require 'net/http'
+require 'date'
 require_relative 'stock_report_error.rb'
 require_relative 'day_trade.rb'
 
@@ -10,7 +11,6 @@ class StockReport
   attr_accessor :stocks
 
   CONFIG_FILE_NAME = 'config.json'
-  API_KEY_NAME = 'key'
   MESSAGE_CONFIG_NOT_FOUND = "Could not open config.json"
   MESSAGE_INVALID_JSON = "Invalid JSON syntax on config.json"
   MESSAGE_KEY_NOT_INFORMED = "API key was not informed. Set 'key' on config.json file"
@@ -21,7 +21,7 @@ class StockReport
     begin
       read_config CONFIG_FILE_NAME
       parse_fields @config
-      read_stocks
+      print_stock_report
     rescue StockReportError => e
       puts e.message
     end
@@ -96,6 +96,7 @@ class StockReport
   end
 
   def call_api url, connection
+    begin
     uri = URI(url)
 
     response = connection.get_response(uri)
@@ -107,20 +108,81 @@ class StockReport
     # Check for errors returned by the API
     json = JSON.parse(response.body)
 
-    if json["Error Message"] != nil
+
+    if !json["Error Message"].empty?
       raise StockReportError, MESSAGE_API_CALL_ERROR
+    end
+    rescue => e
+      puts e.message
     end
     return json
   end
 
-  def read_stocks
-
+  def print_stock_report
     # Get information for each company
     stocks.each do |stock|
-      # Create class Stock and atts
-      # Call api and retrieve values
-      # Set values on Stock class
-      puts stock
+      # Generate URL for get stock information
+      url = generate_api_url stock
+
+      # Get information from API
+      api_result = call_api url, Net::HTTP
+
+      # Get the last 5 work days
+      working_days = last_5_working_days Date.today
+
+      # Extract API result
+      daily_trade = extract_information_from_json api_result, working_days
+
+      # Print daily trade
+      puts daily_trade_report stock, daily_trade
     end
+  end
+
+  def daily_trade_report symbol, daily_trade
+    daily_report = ""
+
+    daily_report << build_header(symbol)
+
+    daily_report << "\n\n"
+
+    # Build daily trade box
+    daily_trade.each do |day_trade|
+
+      # Print date header
+      daily_report << "DATE: #{day_trade.date.strftime('%d/%m/%Y')}\n"
+
+      # Print top section
+      daily_report << "".rjust(19,"-") + "\n"
+
+      # Print open price
+      daily_report << price_line('OPEN', day_trade.open_price) + "\n"
+
+      # Print close price
+      daily_report << price_line('CLOSE', day_trade.close_price) + "\n"
+
+      # Print high price
+      daily_report << price_line('HIGH', day_trade.higher_price) + "\n"
+
+      # Print low price
+      daily_report << price_line('LOW', day_trade.lower_price) + "\n"
+
+      # Print bottom section
+      daily_report << "".rjust(19,"-") + "\n\n"
+    end
+
+    # Build footer
+    daily_report << "".center(100,"*") + "\n\n\n"
+
+    return daily_report
+  end
+
+  def build_header symbol
+    return " LAST 5 DAYS BUSINESS REPORT FOR #{symbol} ".center(100,"*")
+  end
+
+  # Mount price column
+  def price_line label, price
+    price = "R$ %0.2f" % [price]
+    return  "#{label}:".ljust(11) + price
   end
 end

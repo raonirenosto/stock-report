@@ -111,4 +111,17 @@ class StockReportTest < Minitest::Spec
     end
   end
 
+  def test_build_daily_report
+    json_data = JSON.parse(File.read('api_return.json'))
+    report_sample = File.read('report_sample.dat')
+
+    dates = @report.last_5_working_days Date.new(2019,8,9)
+    daily_trade = @report.extract_information_from_json(json_data,dates)
+
+
+    daily_trade_report = @report.daily_trade_report "PETR4", daily_trade
+
+    assert_equal report_sample, daily_trade_report
+  end
+
 end
