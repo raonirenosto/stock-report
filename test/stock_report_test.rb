@@ -90,7 +90,7 @@ class StockReportTest < Minitest::Spec
     begin
       connection = stub()
       response = stub()
-      response.stubs(:code).returns(404)
+      response.stubs(:code).returns("404")
       connection.stubs(:get_response).returns(response)
       @report.call_api "any_url", connection
     rescue => e
@@ -102,7 +102,7 @@ class StockReportTest < Minitest::Spec
     begin
       connection = stub()
       response = stub()
-      response.stubs(:code).returns(200)
+      response.stubs(:code).returns("200")
       response.stubs(:body).returns('{"Error Message": "Invalid API"}')
       connection.stubs(:get_response).returns(response)
       @report.call_api "any_url", connection

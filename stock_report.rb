@@ -96,25 +96,21 @@ class StockReport
   end
 
   def call_api url, connection
-    begin
     uri = URI(url)
 
     response = connection.get_response(uri)
 
-    if response.code != 200
+    if response.code != "200"
       raise StockReportError, MESSAGE_API_CALL_ERROR
     end
 
     # Check for errors returned by the API
     json = JSON.parse(response.body)
 
-
     if !json["Error Message"].empty?
       raise StockReportError, MESSAGE_API_CALL_ERROR
     end
-    rescue => e
-      puts e.message
-    end
+
     return json
   end
 
