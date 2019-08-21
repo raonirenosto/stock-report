@@ -107,7 +107,7 @@ class StockReport
     # Check for errors returned by the API
     json = JSON.parse(response.body)
 
-    if !json["Error Message"].empty?
+    if json["Error Message"] != nil
       raise StockReportError, MESSAGE_API_CALL_ERROR
     end
 

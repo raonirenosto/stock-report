@@ -111,6 +111,15 @@ class StockReportTest < Minitest::Spec
     end
   end
 
+  def test_call_to_api_success
+    connection = stub()
+    response = stub()
+    response.stubs(:code).returns("200")
+    response.stubs(:body).returns('{}')
+    connection.stubs(:get_response).returns(response)
+    @report.call_api "any_url", connection
+  end
+
   def test_build_daily_report
     json_data = JSON.parse(File.read('api_return.json'))
     report_sample = File.read('report_sample.dat')
