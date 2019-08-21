@@ -182,3 +182,7 @@ class StockReport
     return  "#{label}:".ljust(11) + price
   end
 end
+
+# Call generate method
+stock_report = StockReport.new
+stock_report.generate_report
