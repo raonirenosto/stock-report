@@ -1,5 +1,5 @@
 # Stock Report
-Generate and show a stock report for the last 5 business day of brazilian stock market (Bovespa).
+Generate and show a stock report for the last 5 business days of brazilian stock market (Bovespa).
 
 ## Configuration
  Open file **config.json** and change the following fields:
@@ -30,7 +30,7 @@ This configuration should set parameters for generating a report for Petróleo B
 ruby stock_report.rb
 ```
 
-## tests
+## Tests
 
 ```console
 cd test
